@@ -28,7 +28,6 @@ public class ReportController {
     @Autowired
     private ReportService reportService;
 
-
     @GetMapping("/report")
     public ResponseEntity getNutritionReport() throws JRException, SQLException, FileNotFoundException {
         ByteArrayOutputStream reportStream=reportService.generateReport();

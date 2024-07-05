@@ -2,6 +2,7 @@ package com.example.productDemo.service.serviceimpl;
 
 import com.example.productDemo.dto.ProductDto;
 import com.example.productDemo.entity.Product;
+import com.example.productDemo.exception.ResourceNotFoundException;
 import com.example.productDemo.mapper.ProductMapper;
 import com.example.productDemo.repository.ProductRepository;
 import com.example.productDemo.service.IProductService;
@@ -20,14 +21,14 @@ public class ProductServiceImpl implements IProductService {
 
     @Override
     public void saveProduct(ProductDto productDto) {
-        Product product = ProductMapper.fromProductDto(productDto);
+        Product product = ProductMapper.fromProductDto(productDto, new Product());
         productRepository.save(product);
     }
 
     @Override
     public ProductDto getProductById(long id) {
-        Product product = productRepository.findById(id).orElseThrow(() -> new RuntimeException("Product Not Found With ID: " + id));
-        ProductDto productDto = ProductMapper.toProductDto(product);
+        Product product = productRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Product", "Product ID", id + ""));
+        ProductDto productDto = ProductMapper.toProductDto(product, new ProductDto());
         return productDto;
     }
 
@@ -36,16 +37,15 @@ public class ProductServiceImpl implements IProductService {
         List<Product> products = productRepository.findAll();
         List<ProductDto> productDtos = new ArrayList<>();
         products.forEach((Product p) -> {
-            ProductDto productDto = ProductMapper.toProductDto(p);
+            ProductDto productDto = ProductMapper.toProductDto(p, new ProductDto());
             productDtos.add(productDto);
         });
-
         return productDtos;
     }
 
     @Override
     public void deleteProduct(long id) {
-        Product product = productRepository.findById(id).orElseThrow(() -> new RuntimeException("Product Not Found With ID: " + id));
+        Product product = productRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Product", "Product ID", id + ""));
         productRepository.delete(product);
     }
 
@@ -53,8 +53,8 @@ public class ProductServiceImpl implements IProductService {
     public boolean updateProduct(ProductDto productDto, long id) {
         boolean isUpdated = false;
         if (productDto != null) {
-            Product product = productRepository.findById(id).orElseThrow(() -> new RuntimeException("Product Not Found With ID: " + id));
-            Product updatedProduct = ProductMapper.fromProductDto(productDto);
+            Product product = productRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Product", "Product ID", id + ""));
+            Product updatedProduct = ProductMapper.fromProductDto(productDto, product);
             productRepository.save(updatedProduct);
             isUpdated = true;
         }
